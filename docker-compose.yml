@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  wp-database:
+    image: mysql:5.7
+    networks:
+      - site-wp
+    ports:
+      - 3306:3306
+    environment:
+       - MYSQL_ROOT_PASSWORD=root123
+       - MYSQL_DATABASE=wordpress
+       - MYSQL_USER=wordpress
+       - MYSQL_PASSWORD=wordpress@123
+    volumes:
+      - ./db:/var/lib/mysql
+
+  wp-server:
+    image: wordpress:5.4.2-php7.2-apache
+    networks:
+      - site-wp
+    ports:
+      - 8080:80
+    environment:
+      - WORDPRESS_DB_HOST=wp-database
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress@123
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_TABLE_PREFIX=wp
+      - WORDPRESS_DEBUG=1
+    volumes:
+      - ./themes:/var/www/html/wp-content/themes/
+      - ./plugins:/var/www/html/wp-content/plugins/
+    links:
+      - wp-database
+
+networks:
+  site-wp:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.10.1/24

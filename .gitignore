@@ -1,0 +1,12 @@
+# Database site
+db/*
+
+# Default plugins WP
+plugins/akismet
+plugins/hello.php
+plugins/index.php
+
+# Default themes WP
+themes/twentynineteen
+themes/twentyseventeen
+themes/twentytwenty
