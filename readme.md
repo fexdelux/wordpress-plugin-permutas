@@ -7,11 +7,11 @@ Este plugin foi criado para atender o controle de cadastros das pesssoas para pe
  - VS Code
 
 ## Usando o Docker para desenvolver o plugin
-Para comessar a desenvolver, inicie os serviços que esta no docker-compose:
+Para começar a desenvolver, inicie os serviços que esta no docker-compose:
 ```
-docker-compose up -d 
+$ docker-compose up -d 
 ```
-ao executar abrirá 2 conteiners:
+ao executar abrirá 2 containers:
  - wp-database(Mysql)
  - wp-server (wordpress + Apache).
 
