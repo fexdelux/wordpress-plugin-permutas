@@ -58,6 +58,8 @@ class Urcx_Permutas_Database {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
     add_option('permutas_db_version', '1.0.0');
+    // TODO: Criar uma tela cadastro de Orgãos
+    $this->install_data();
   }
 
   public function removeDatabase() {
@@ -74,5 +76,14 @@ class Urcx_Permutas_Database {
   dbDelta( $sql );
   delete_option('permutas_db_version');
   }
+  public function install_data() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . "permutas_orgaos";
 
+    $wpdb->insert( $table_name, array( 'nome' => 'PMERJ' ));
+    $wpdb->insert( $table_name, array( 'nome' => 'CBMERJ' ));
+    $wpdb->insert( $table_name, array( 'nome' => 'POLICIA PENITENCIARIA' ));
+    $wpdb->insert( $table_name, array( 'nome' => 'POLICIA CIVIL' ));
+    $wpdb->insert( $table_name, array( 'nome' => 'DEGASE' ));
+  }
 }
