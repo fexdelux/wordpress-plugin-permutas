@@ -17,11 +17,12 @@ services:
       - ./db:/var/lib/mysql
 
   wp-server:
-    image: wordpress:5.4.2-php7.2-apache
+    build: ./docker
     networks:
       - site-wp
     ports:
       - 8080:80
+   #   - 9000:9000
     environment:
       - WORDPRESS_DB_HOST=wp-database
       - WORDPRESS_DB_USER=wordpress
