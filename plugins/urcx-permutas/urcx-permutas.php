@@ -9,13 +9,14 @@ Author URI: http://www.
 Text Domain: urcx-permutas
 License: GPL2
 */
+if(!defined('ABSPATH')) exit;
 
 require_once(dirname(__FILE__).'/widgets/permuta-form.php');
-
+require_once(dirname(__FILE__).'/core/database.php');
 
 class UrcxPermutas {
   private static $instance;
-
+  private $database;
   public static function getInstance() {
     if (self::$instance == NULL) {
       self::$instance = new self();
@@ -25,8 +26,11 @@ class UrcxPermutas {
   }
 
   private function __construct() {
+    $this->database = new Urcx_Permutas_Database();
     add_action('admin_menu', array($this, 'set_custom_menu'));
     add_action('widgets_init',array($this, 'register_widgets'));
+    register_activation_hook(__FILE__, array($this->database, 'createDatabase'));
+
   }
 
   public function register_widgets(){
