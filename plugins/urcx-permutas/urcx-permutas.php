@@ -26,11 +26,19 @@ class UrcxPermutas {
   }
 
   private function __construct() {
-    $this->database = new Urcx_Permutas_Database();
+    $this->database =  Urcx_Permutas_Database::getInstance();
     add_action('admin_menu', array($this, 'set_custom_menu'));
     add_action('widgets_init',array($this, 'register_widgets'));
-    register_activation_hook(__FILE__, array($this->database, 'createDatabase'));
+    register_activation_hook(__FILE__, array($this, 'register_database'));
+    register_deactivation_hook(__FILE__, array($this, 'remove_database'));
+  }
 
+  public function register_database() {
+    $this->database->createDatabase();
+  }
+
+  public function remove_database() {
+    $this->database->removeDatabase();
   }
 
   public function register_widgets(){

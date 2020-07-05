@@ -3,10 +3,18 @@ global $permutas_db_version;
 $permutas_db_version = '1.0.0';
 
 class Urcx_Permutas_Database {
+  public static function getInstance() {
+    if (self::$instance == NULL) {
+      self::$instance = new self();
+    }
 
-  public function __construct() {
+    return self::$instance;
+  }
+
+  private function __construct() {
 
   }
+
 
   public function validateVersion() {
     global $permutas_db_version;
@@ -16,7 +24,7 @@ class Urcx_Permutas_Database {
 
   public function createDatabase() {
     global $wpdb;
-    if($this->validateVersion()) exit;
+    if($this->validateVersion()) return;
 
     $tblPessoas = $wpdb->prefix . "permutas_pessoas";
     $tblOrgaos = $wpdb->prefix . "permutas_orgaos";
@@ -35,7 +43,7 @@ class Urcx_Permutas_Database {
         nome varchar(200) NOT NULL,
         email varchar(250) NOT NULL,
         telefone varchar(14),
-        rg_matricula varchar(30)
+        rg_matricula varchar(30),
         cpf varchar(11),
         id_funcional varchar(20),
         id_orgao int(9) NOT NULL,
@@ -59,4 +67,20 @@ class Urcx_Permutas_Database {
     dbDelta( $sql );
     add_option('permutas_db_version', '1.0.0');
   }
+
+  public function removeDatabase() {
+    global $wpdb;
+    $tblPessoas = $wpdb->prefix . "permutas_pessoas";
+    $tblOrgaos = $wpdb->prefix . "permutas_orgaos";
+    $tblIrPara = $wpdb->prefix . "permutas_ir_para";
+    $sql = "
+    DROP TABLE $tblOrgaos ;
+    DROP TABLE $tblPessoas ;
+    DROP TABLE $tblIrPara ;
+  ";
+  require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+  dbDelta( $sql );
+  delete_option('permutas_db_version');
+  }
+
 }
