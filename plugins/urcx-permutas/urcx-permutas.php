@@ -13,6 +13,8 @@ if(!defined('ABSPATH')) exit;
 
 require_once(dirname(__FILE__).'/widgets/permuta-form.php');
 require_once(dirname(__FILE__).'/core/database.php');
+require_once(dirname(__FILE__).'/admin/dashboard.php');
+require_once(dirname(__FILE__).'/admin/lista-pessoas.php');
 
 class UrcxPermutas {
   private static $instance;
@@ -54,11 +56,13 @@ class UrcxPermutas {
       array($this, 'admin_tela'),
       'dashicons-admin-site-alt3',
       2
-
     );
+    Urcx_Permutas_Lista_Pessoas::getInstance()->registerMenu();
+    # Urcx_Permutas_DashBoard::getInstance()->registerMenu();
+
   }
   public function admin_tela() {
-    echo '<h1>Foi</h1>';
+    Urcx_Permutas_DashBoard::getInstance()->render();
   }
 }
 
