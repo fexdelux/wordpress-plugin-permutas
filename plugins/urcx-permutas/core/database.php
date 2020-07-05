@@ -3,15 +3,7 @@ global $permutas_db_version;
 $permutas_db_version = '1.0.0';
 
 class Urcx_Permutas_Database {
-  public static function getInstance() {
-    if (self::$instance == NULL) {
-      self::$instance = new self();
-    }
-
-    return self::$instance;
-  }
-
-  private function __construct() {
+  public function __construct() {
 
   }
 

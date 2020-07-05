@@ -26,7 +26,7 @@ class UrcxPermutas {
   }
 
   private function __construct() {
-    $this->database =  Urcx_Permutas_Database::getInstance();
+    $this->database = new Urcx_Permutas_Database();
     add_action('admin_menu', array($this, 'set_custom_menu'));
     add_action('widgets_init',array($this, 'register_widgets'));
     register_activation_hook(__FILE__, array($this, 'register_database'));
