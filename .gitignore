@@ -10,3 +10,6 @@ plugins/index.php
 themes/twentynineteen
 themes/twentyseventeen
 themes/twentytwenty
+
+# Distribuição
+dist
