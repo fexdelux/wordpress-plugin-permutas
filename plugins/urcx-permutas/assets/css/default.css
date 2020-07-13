@@ -1,0 +1,17 @@
+.urcx-permutas-form {
+
+
+}
+
+.urcx-permutas-form input {
+  width: 100%;
+}
+.urcx-permutas-form select {
+  width: 100%;
+}
+
+.urcx-permutas-form label {
+  display: block;
+  background-color: blue;
+}
+

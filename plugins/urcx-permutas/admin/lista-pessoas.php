@@ -25,20 +25,85 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
 
     );
   }
+  public function getCadasroList($filter, $orgao) {
+    global $wpdb;
+    $qrypesquisa = "
+      SELECT
+      p.id,
+      p.nome,
+      p.cargo,
+      p.email,
+      p.telefone,
+      p.municipio,
+      og.nome as orgao
+      FROM
+        {$wpdb->prefix}permutas_orgaos as og
+        join {$wpdb->prefix}permutas_pessoas as p on p.id_orgao = og.id
+        where 1=1
+    ";
+    if(isset($filter)) {
+      $qrypesquisa .= "  and p.nome like '$filter%'";
+    }
+    if(isset($orgao) && $orgao != '') {
+      $qrypesquisa .= "  and p.id_orgao = $orgao";
+    }
+    $list = $wpdb->get_results( $qrypesquisa, OBJECT );
+
+    return $list;
+  }
+
+  public function getCadasro($id) {
+    global $wpdb;
+  }
+
+  public function deleteCadastro($lista) {
+    global $wpdb;
+    foreach($lista as $item) {
+      $wpdb->query(
+        $wpdb->prepare( "DELETE FROM {$wpdb->prefix}permutas_ir_para WHERE id_pessoa = %d", $item )
+      );
+      $wpdb->query(
+        $wpdb->prepare( "DELETE FROM {$wpdb->prefix}permutas_pessoas WHERE id = %d", $item )
+      );
+    }
+  }
+
   public function render(){
+    global $wpdb;
+    $pesquisa = array_key_exists('s',$_GET) ? $_GET['s']: null;
+    $pesquisa_orgao = array_key_exists('pesquisa_orgao',$_GET) ? $_GET['pesquisa_orgao']: null;
+    $action = array_key_exists('action',$_GET) ? $_GET['action']: null;
+
+    if(isset($action) && $action == 'delete') {
+      $this->deleteCadastro($_GET['cadastro']);
+    }
+
+
+    $lista = $this->getCadasroList($pesquisa, $pesquisa_orgao);
+    $orgaos_items = "<option value=''>Todos os orgão</option>";
+    $orgaosList = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}permutas_orgaos", OBJECT );
+    foreach( $orgaosList as $orgao) {
+      $orgaos_items .= "<option value='$orgao->id'>$orgao->nome</option>";
+    }
+    $listaView = '';
+    foreach($lista as $data) {
+      $listaView .= $this->renderLine($data);
+    }
+
+
     echo <<<EOF
+
     <div class="wrap">
       <h1>Banco de permuta</h1>
       <h3>Lista de pessoas cadastradas</h3>
 
       <form method="get">
+        <input type="hidden" name="page" value="banco_permutas_lista">
   	  	<p class="search-box">
 	        <label class="screen-reader-text" for="user-search-input">Search Users:</label>
-	        <input type="search" id="user-search-input" name="s" value="">
-          <input type="submit" id="search-submit" class="button" value="Search Users">
+	        <input type="search" id="user-search-input" name="s" value="$pesquisa">
+          <input type="submit" id="search-submit" class="button" value="Pesquisar">
         </p>
-        <input type="hidden" id="_wpnonce" name="_wpnonce" value="cc717443ad">
-        <input type="hidden" name="_wp_http_referer" value="/wp-admin/users.php">
         <div class="tablenav top">
         	<div class="alignleft actions bulkactions">
             <label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
@@ -46,28 +111,15 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
               <option value="-1">Ações</option>
 	            <option value="delete">Apagar</option>
             </select>
-            <input type="submit" id="doaction" class="button action" value="Apply">
+            <input type="submit" id="doaction" class="button action" value="Aplica">
 		      </div>
 		  		<div class="alignleft actions">
-		  		  <label class="screen-reader-text" for="new_role">Todos os orgãos</label>
-		        <select name="new_role" id="new_role">
+		  		  <label class="screen-reader-text" for="pesquisa_orgao">Todos os orgãos</label>
+		        <select name="pesquisa_orgao" id="pesquisa_orgao" value="$pesquisa_orgao">
 		  	      <option value="">Todos os orgãos</option>
-
+              $orgaos_items
             </select>
-            <input type="submit" name="changeit" id="changeit" class="button" value="Change">
-          </div>
-          <div class="tablenav-pages one-page">
-            <span class="displaying-num">1 item</span>
-            <span class="pagination-links"><span class="tablenav-pages-navspan button disabled" aria-hidden="true">«</span>
-            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">‹</span>
-            <span class="paging-input">
-              <label for="current-page-selector" class="screen-reader-text">Current Page</label>
-              <input class="current-page" id="current-page-selector" type="text" name="paged" value="1" size="1" aria-describedby="table-paging">
-              <span class="tablenav-paging-text"> of <span class="total-pages">1</span></span>
-            </span>
-            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">›</span>
-            <span class="tablenav-pages-navspan button disabled" aria-hidden="true">»</span>
-            </span>
+            <input type="submit" class="button" value="aplicar">
           </div>
 		      <br class="clear">
 	      </div>
@@ -79,59 +131,16 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
                 <label class="screen-reader-text" for="cb-select-all-1">Select All</label>
                 <input id="cb-select-all-1" type="checkbox">
               </td>
-              <th scope="col" id="username" class="manage-column column-username column-primary sortable desc">
-                <a href="http://localhost:8080/wp-admin/users.php?orderby=login&amp;order=asc">
-                  <span>Username</span>
-                  <span class="sorting-indicator"></span>
-                </a>
-              </th>
-              <th scope="col" id="name" class="manage-column column-name">Name</th>
-              <th scope="col" id="email" class="manage-column column-email sortable desc">
-                <a href="http://localhost:8080/wp-admin/users.php?orderby=email&amp;order=asc">
-                  <span>Email</span>
-                  <span class="sorting-indicator"></span>
-                </a>
-              </th>
-              <th scope="col" id="role" class="manage-column column-role">Role</th>
-              <th scope="col" id="posts" class="manage-column column-posts num">Posts</th>
+              <th scope="col" id="nome" class="manage-column column-primary sortable desc">Nome</th>
+              <th scope="col" id="name" class="manage-column ">Orgão</th>
+              <th scope="col" id="email" class="manage-column">E-mail</th>
+              <th scope="col" id="telefone" class="manage-column">Telefone</th>
+              <th scope="col" id="cargo" class="manage-column">Cargo</th>
+              <th scope="col" id="municipio" class="manage-column">Município</th>
             </tr>
 	        </thead>
           <tbody id="the-list" data-wp-lists="list:user">
-            <tr id="user-1">
-              <th scope="row" class="check-column">
-                <label class="screen-reader-text" for="user_1">Select administrator</label>
-                <input type="checkbox" name="users[]" id="user_1" class="administrator" value="1">
-              </th>
-              <td class="username column-username has-row-actions column-primary" data-colname="Username">
-                <strong><a href="#">administrator</a></strong>
-                <br>
-                <div class="row-actions">
-                  <span class="edit">
-                    <a href="#">Edit</a> |
-                  </span>
-                  <span class="view">
-                    <a href="#" aria-label="View posts by administrator">View</a>
-                  </span>
-                </div>
-                <button type="button" class="toggle-row">
-                  <span class="screen-reader-text">Show more details</span>
-                </button>
-              </td>
-              <td class="name column-name" data-colname="Name">
-                <span aria-hidden="true">—</span>
-                <span class="screen-reader-text">Unknown</span>
-              </td>
-              <td class="email column-email" data-colname="Email">
-                <a href="#">fexdelux@gmail.com</a>
-              </td>
-              <td class="role column-role" data-colname="Role">Administrator</td>
-              <td class="posts column-posts num" data-colname="Posts">
-                <a href="#" class="edit">
-                  <span aria-hidden="true">1</span>
-                  <span class="screen-reader-text">1 post by this author</span>
-                </a>
-              </td>
-            </tr>
+            $listaView
           </tbody>
           <tfoot>
 	          <tr>
@@ -139,21 +148,12 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
                 <label class="screen-reader-text" for="cb-select-all-2">Select All</label>
                 <input id="cb-select-all-2" type="checkbox">
               </td>
-              <th scope="col" class="manage-column column-username column-primary sortable desc">
-                <a href="#">
-                  <span>Username</span>
-                  <span class="sorting-indicator"></span>
-                </a>
-              </th>
-              <th scope="col" class="manage-column column-name">Name</th>
-              <th scope="col" class="manage-column column-email sortable desc">
-                <a href="#">
-                  <span>Email</span>
-                  <span class="sorting-indicator"></span>
-                </a>
-              </th>
-              <th scope="col" class="manage-column column-role">Role</th>
-              <th scope="col" class="manage-column column-posts num">Posts</th>
+              <th scope="col" id="nome" class="manage-column column-primary sortable desc">Nome</th>
+              <th scope="col" id="name" class="manage-column ">Orgão</th>
+              <th scope="col" id="email" class="manage-column">E-mail</th>
+              <th scope="col" id="telefone" class="manage-column">Telefone</th>
+              <th scope="col" id="cargo" class="manage-column">Cargo</th>
+              <th scope="col" id="municipio" class="manage-column">Município</th>
             </tr>
 	        </tfoot>
         </table>
@@ -162,6 +162,38 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
     </div>
 EOF;
   }
+  private function renderLine($data) {
 
+    $line = <<<EOF
+    <tr id="user-$data->id">
+    <th scope="row" class="check-column">
+      <label class="screen-reader-text" for="user_1">Select administrator</label>
+      <input type="checkbox" name="cadastro[]" id="user_$data->id" class="administrator" value="$data->id">
+    </th>
+    <td class="username column-username has-row-actions column-primary" data-colname="nome">
+      $data->nome
+      <br>
+      <div class="row-actions">
+        <span class="view">
+          <a href="/wp-admin/admin.php?page=banco_permutas_info&id=$data->id" aria-label="View posts by administrator">Visializar</a>
+        </span>
+      </div>
+      <button type="button" class="toggle-row">
+        <span class="screen-reader-text">Show more details</span>
+      </button>
+    </td>
+    <td class="name column-name" data-colname="Name">
+      $data->orgao
+    </td>
+    <td class="email column-email" data-colname="Email">
+    $data->email
+    </td>
+    <td class="role column-role" data-colname="Role">$data->telefone</td>
+    <td class="posts column-posts num" data-colname="Posts">$data->cargo </td>
+    <td class="role column-role" data-colname="Role">$data->municipio</td>
+  </tr>
+EOF;
+    return $line;
+  }
 
 }
