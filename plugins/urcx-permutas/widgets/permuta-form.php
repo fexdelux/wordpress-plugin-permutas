@@ -99,6 +99,10 @@ EOF;
             <input type="text" name="cpf" id="cpf"  autocomplete="off" maxlength="11" />
           </div>
           <div class="field">
+            <label for="rg_matricula">RG</label>
+            <input type="text" name="rg_matricula" id="rg_matricula"  autocomplete="off" maxlength="11" />
+          </div>
+          <div class="field">
             <label for="id_funcional">ID funcional</label>
             <input type="text" name="id_funcional" id="id_funcional"  autocomplete="off" maxlength="20" />
           </div>
@@ -179,6 +183,7 @@ EOF;
         'id_funcional' => $post['id_funcional'],
         'id_orgao' => $post['id_orgaos'],
         'cargo' => $post['cargo'],
+        'rg_matricula' => $post['rg_matricula'],
         'lotacao_unidade' => $post['lotacao_unidade'],
         'municipio' => $post['municipio']
       )
