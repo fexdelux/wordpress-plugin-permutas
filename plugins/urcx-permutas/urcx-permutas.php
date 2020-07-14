@@ -16,6 +16,7 @@ require_once(dirname(__FILE__).'/core/database.php');
 require_once(dirname(__FILE__).'/admin/dashboard.php');
 require_once(dirname(__FILE__).'/admin/lista-pessoas.php');
 require_once(dirname(__FILE__).'/admin/match.php');
+require_once(dirname(__FILE__).'/admin/info.php');
 
 class UrcxPermutas {
   private static $instance;
@@ -60,6 +61,7 @@ class UrcxPermutas {
     );
     Urcx_Permutas_Lista_Pessoas::getInstance()->registerMenu();
     Urcx_Permutas_Match::getInstance()->registerMenu();
+    Urcx_Permutas_Info::getInstance()->registerMenu();
     # Urcx_Permutas_DashBoard::getInstance()->registerMenu();
 
   }

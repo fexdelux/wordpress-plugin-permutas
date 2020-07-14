@@ -52,9 +52,6 @@ class Urcx_Permutas_Lista_Pessoas implements iAdminPageView{
     return $list;
   }
 
-  public function getCadasro($id) {
-    global $wpdb;
-  }
 
   public function deleteCadastro($lista) {
     global $wpdb;
